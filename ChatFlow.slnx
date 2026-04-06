@@ -1,1 +1,9 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/ChatFlowProject/">
+    <Project Path="src/ChatFlowProject/Domain/Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/core.Package/">
+    <Project Path="src/core.Package/Core.Persistence/Core.Persistence.csproj" />
+  </Folder>
+</Solution>
