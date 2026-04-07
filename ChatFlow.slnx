@@ -1,9 +1,14 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/ChatFlowProject/">
+    <Project Path="src/ChatFlowProject/Application/Application.csproj" Id="cc1afa82-158a-4645-b5d6-ae5c3dd6fc27" />
     <Project Path="src/ChatFlowProject/Domain/Domain.csproj" />
+    <Project Path="src/ChatFlowProject/Persistence/Persistence.csproj" Id="1b14e080-eafb-4516-8216-67a3dc9b1670" />
   </Folder>
   <Folder Name="/src/core.Package/">
+    <Project Path="src/core.Package/Core.Authorization/Core.Authorization.csproj" Id="df45a1b6-0d5f-4003-89ac-65ab1caa7f60" />
+    <Project Path="src/core.Package/Core.CrossCuttingConcerns/Core.CrossCuttingConcerns.csproj" Id="233dcfb1-ee4a-49ad-ad93-3644815a8c3b" />
     <Project Path="src/core.Package/Core.Persistence/Core.Persistence.csproj" />
+    <Project Path="src/core.Package/Core.Security/Core.Security.csproj" Id="44485584-4610-47dc-91d7-391ec6bd1b11" />
   </Folder>
 </Solution>

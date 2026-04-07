@@ -1,6 +1,6 @@
-﻿using Core.Persistence.Attributes;
+﻿using Core.Authorization.Enums;
+using Core.Persistence.Attributes;
 using Core.Persistence.Entities;
-using Domain.Enums;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Domain.Entities;

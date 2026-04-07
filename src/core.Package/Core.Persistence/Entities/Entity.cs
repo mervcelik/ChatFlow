@@ -8,5 +8,4 @@ public class Entity : IEntity
     [BsonRepresentation(MongoDB.Bson.BsonType.ObjectId)]
     public Guid Id { get; set; }
     public DateTime CreatedDate { get; set; }
-    public DateTime? DeletedDate { get; set; }
 }
