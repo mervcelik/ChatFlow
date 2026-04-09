@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Core.CrossCuttingConcerns.Exceptions;
+using Core.CrossCuttingConcerns.Exceptions.Types;
 using Core.Security.Services.PasswordService;
 using Domain.Entities;
 using System;

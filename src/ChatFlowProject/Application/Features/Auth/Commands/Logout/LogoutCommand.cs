@@ -2,6 +2,7 @@
 using Application.Repositories;
 using AutoMapper;
 using Core.CrossCuttingConcerns.Exceptions;
+using Core.CrossCuttingConcerns.Exceptions.Types;
 using Core.Security.Services.Hash;
 using Domain.Entities;
 using MediatR;

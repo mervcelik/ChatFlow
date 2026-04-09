@@ -1,6 +1,7 @@
 ﻿using Application.Repositories;
 using Core.Authorization.Enums;
 using Core.CrossCuttingConcerns.Exceptions;
+using Core.CrossCuttingConcerns.Exceptions.Types;
 using System;
 using System.Collections.Generic;
 using System.Linq;

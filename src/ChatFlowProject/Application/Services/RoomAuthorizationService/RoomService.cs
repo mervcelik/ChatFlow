@@ -1,6 +1,7 @@
 ﻿using Application.Repositories;
 using Core.Authorization.Enums;
 using Core.CrossCuttingConcerns.Exceptions;
+using Core.CrossCuttingConcerns.Exceptions.Types;
 
 namespace Application.Services.RoomAuthorizationService;
 
