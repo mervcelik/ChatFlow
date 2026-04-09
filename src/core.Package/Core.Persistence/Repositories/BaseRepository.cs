@@ -58,7 +58,11 @@ public abstract class BaseRepository<T> : IRepository<T>
     }
 
     public async Task AddAsync(T entity, CancellationToken ct = default)
-        => await _collection.InsertOneAsync(entity, null, ct);
+    {
+        entity.CreatedDate = DateTime.Now;
+        await _collection.InsertOneAsync(entity, null, ct);
+    }
+
 
     public async Task UpdateAsync( T entity, CancellationToken ct = default)
     {
