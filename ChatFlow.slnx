@@ -7,6 +7,7 @@
     <Project Path="src/ChatFlowProject/WebApi/WebApi.csproj" Id="f4e2f09d-a092-49eb-a342-645ce0a9708c" />
   </Folder>
   <Folder Name="/src/core.Package/">
+    <Project Path="src/core.Package/Core.Application/Core.Application.csproj" Id="d5ceacd3-2e3c-480a-b644-94c88f4981be" />
     <Project Path="src/core.Package/Core.Authorization/Core.Authorization.csproj" Id="df45a1b6-0d5f-4003-89ac-65ab1caa7f60" />
     <Project Path="src/core.Package/Core.CrossCuttingConcerns/Core.CrossCuttingConcerns.csproj" Id="233dcfb1-ee4a-49ad-ad93-3644815a8c3b" />
     <Project Path="src/core.Package/Core.Persistence/Core.Persistence.csproj" />

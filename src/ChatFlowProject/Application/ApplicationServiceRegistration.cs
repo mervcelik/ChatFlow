@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.BusinessRules;
+using Application.Features.Users.Rules;
 using Application.Services.RoomAuthorizationService;
 using Core.Security.JWT;
 using Core.Security.Services.Hash;
@@ -28,6 +29,7 @@ public static class ApplicationServiceRegistration
 
 
         services.AddTransient<AuthBusinessRules>();
+        services.AddTransient<UserBusinessRules>();
 
         services.AddTransient<ITokenHelper, JwtHelper>();
         services.AddTransient<IPasswordService, BcryptPasswordService>();

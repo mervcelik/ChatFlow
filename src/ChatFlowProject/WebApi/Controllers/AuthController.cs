@@ -1,4 +1,5 @@
 ﻿using Application.Features.Auth.Commands.Login;
+using Application.Features.Auth.Commands.Logout;
 using Application.Features.Auth.Commands.Refresh;
 using Application.Features.Auth.Commands.Register;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,12 @@ public class AuthController : BaseController
     public async Task<IActionResult> Refresh([FromBody] RefreshCommand RefreshCommand)
     {
         RefreshResponse? response = await Mediator.Send(RefreshCommand);
+        return Ok(response);
+    }
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Logout([FromBody] LogoutCommand LogoutCommand)
+    {
+        LogoutResponse? response = await Mediator.Send(LogoutCommand);
         return Ok(response);
     }
 }
