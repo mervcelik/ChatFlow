@@ -36,7 +36,6 @@ public static class ApplicationServiceRegistration
         services.AddTransient<IHashService, HashService>();
 
         services.AddTransient<IRoomAuthorizationService, RoomAuthorizationManager>();
-        services.AddTransient<RoomService>();
         return services;
     }
 }

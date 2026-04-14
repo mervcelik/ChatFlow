@@ -25,25 +25,47 @@ public abstract class BaseRepository<T> : IRepository<T>
         _collection = database.GetCollection<T>(collectionName);
     }
 
-    public async Task<T?> GetAsync(Expression<Func<T, bool>>? filter = null, CancellationToken ct = default)
+    /// Helper method: Soft delete filter'ı ekle (IsDeleted = false)
+    protected FilterDefinition<T> ApplySoftDeleteFilter(FilterDefinition<T>? filter = null, bool includeDeleted = false)
     {
-        return await _collection.Find(filter).FirstOrDefaultAsync(ct);
+        if (includeDeleted)
+            return filter ?? Builders<T>.Filter.Empty;
+
+        var softDeleteFilter = Builders<T>.Filter.Eq("IsDeleted", false);
+
+        if (filter == null)
+            return softDeleteFilter;
+
+        return Builders<T>.Filter.And(filter, softDeleteFilter);
+    }
+
+    public async Task<T?> GetAsync(Expression<Func<T, bool>>? filter = null, bool includeDeleted = false, CancellationToken ct = default)
+    {
+        var mongoFilter = filter != null
+            ? Builders<T>.Filter.Where(filter)
+            : Builders<T>.Filter.Empty;
+
+        var finalFilter = ApplySoftDeleteFilter(mongoFilter, includeDeleted);
+        return await _collection.Find(finalFilter).FirstOrDefaultAsync(ct);
     }
 
     public async Task<Paginate<T>> GetListAsync(
         int page,
         int pageSize,
         Expression<Func<T, bool>>? filter = null,
+        bool includeDeleted = false,
         CancellationToken ct = default)
     {
         var mongoFilter = filter != null
             ? Builders<T>.Filter.Where(filter)
             : Builders<T>.Filter.Empty;
 
-        var totalCount = await _collection.CountDocumentsAsync(mongoFilter, null, ct);
+        var finalFilter = ApplySoftDeleteFilter(mongoFilter, includeDeleted);
+
+        var totalCount = await _collection.CountDocumentsAsync(finalFilter, null, ct);
 
         var items = await _collection
-            .Find(mongoFilter)
+            .Find(finalFilter)
             .Skip((page - 1) * pageSize)
             .Limit(pageSize)
             .ToListAsync(ct);
@@ -53,7 +75,7 @@ public abstract class BaseRepository<T> : IRepository<T>
             Items = items,
             TotalCount = totalCount,
             Page = page,
-            PageSize = pageSize
+            PageSize = pageSize,
         };
     }
 
@@ -78,6 +100,14 @@ public abstract class BaseRepository<T> : IRepository<T>
         var update = Builders<T>.Update.Set(field, value);
         await _collection.UpdateOneAsync(filter, update, cancellationToken: ct);
     }
+
+    public async Task SoftDeleteAsync(T entity, CancellationToken ct = default)
+    {
+        entity.IsDeleted = true;
+        entity.DeletedAt = DateTime.UtcNow;
+        await UpdateAsync(entity, ct);
+    }
+
     public async Task DeleteAsync(T entity, CancellationToken ct = default)
     {
         var filter = Builders<T>.Filter.Eq("_id", entity.Id);

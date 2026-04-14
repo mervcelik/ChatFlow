@@ -1,10 +1,13 @@
 ﻿using Application.Repositories;
 using AutoMapper;
 using Core.Application.Dtos;
+using Core.CrossCuttingConcerns.Extensions;
+using Domain.Entities;
 using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,8 +15,8 @@ namespace Application.Features.Users.Queries.GetList;
 
 public class GetListUserQuery : IRequest<GetListResponse<GetListUserResponse>>
 {
-    public string? Search { get; set; }
-    public int Page { get; set; } = 1;
+    public string? EmailOrUserName { get; set; }
+    public int Page { get; set; }
     public int PageSize { get; set; } = 10;
 }
 public class GetListUserQueryHandler : IRequestHandler<GetListUserQuery, GetListResponse<GetListUserResponse>>
@@ -29,7 +32,14 @@ public class GetListUserQueryHandler : IRequestHandler<GetListUserQuery, GetList
 
     public async Task<GetListResponse<GetListUserResponse>> Handle(GetListUserQuery request, CancellationToken cancellationToken)
     {
-        var results = await _userRepository.GetListAsync(request.Page, request.PageSize,x=>x.UserName.Contains(request.Search) || x.Email.Contains(request.Search),cancellationToken);
+        Expression<Func<User, bool>>? predicate = x => x.Id !=null;
+        
+        if (request.EmailOrUserName != null)
+        {
+            predicate = predicate.And(x =>x.UserName.Contains(request.EmailOrUserName, StringComparison.OrdinalIgnoreCase)
+            || x.Email.Contains(request.EmailOrUserName, StringComparison.OrdinalIgnoreCase));
+        }
+        var results = await _userRepository.GetListAsync(request.Page, request.PageSize, predicate, false, cancellationToken);
 
         return _mapper.Map<GetListResponse<GetListUserResponse>>(results);
     }

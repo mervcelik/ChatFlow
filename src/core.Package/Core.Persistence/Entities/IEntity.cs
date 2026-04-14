@@ -8,4 +8,6 @@ public interface IEntity
 {
     public Guid Id { get; set; }
     public DateTime CreatedDate { get; set; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 }

@@ -18,5 +18,5 @@ public class User:Entity
     public string? AvatarUrl { get; set; }
     [BsonRepresentation(BsonType.String)]
     public UserStatus Status { get; set; } = UserStatus.Offline;
-    
 }
+

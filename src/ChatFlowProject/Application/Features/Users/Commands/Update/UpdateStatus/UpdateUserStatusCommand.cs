@@ -25,7 +25,7 @@ public class UpdateUserStatusCommandHandler : IRequestHandler<UpdateUserStatusCo
     }
     public async Task Handle(UpdateUserStatusCommand request, CancellationToken cancellationToken)
     {
-        var entity = await _userRepository.GetAsync(x => x.Id == request.Id, cancellationToken);
+        var entity = await _userRepository.GetAsync(x => x.Id == request.Id, false, cancellationToken);
         if (entity == null)
         {
             throw new NotFoundException("Kullanıcı", request.Id);
