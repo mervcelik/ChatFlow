@@ -24,8 +24,8 @@ public class RoomsController : BaseController
     [HttpGet("GetList")]
     public async Task<IActionResult> GetList()
     {
-        var query = new GetListRoomQuery { UserId = GetCurrentUserId() };
-        GetListResponse<GetListRoomResponse>? response = await Mediator.Send(query);
+        GetListRoomQuery query = new GetListRoomQuery { UserId = GetCurrentUserId() };
+        List<GetListRoomResponse> response = await Mediator.Send(query);
         return Ok(response);
     }
 
@@ -37,7 +37,7 @@ public class RoomsController : BaseController
         return Ok(response);
     }
 
-    [HttpPut("Update}")]
+    [HttpPut("Update")]
     public async Task<IActionResult> Update([FromBody] UpdateRoomCommand updateRoomCommand)
     {
         updateRoomCommand.UserId = GetCurrentUserId();

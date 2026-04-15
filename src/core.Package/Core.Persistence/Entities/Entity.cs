@@ -9,10 +9,5 @@ public class Entity : IEntity
     [BsonRepresentation(BsonType.String)]
     public Guid Id { get; set; }
     public DateTime CreatedDate { get; set; }
-
-    /// Soft Delete: Entity silinmiş mi
-    public bool IsDeleted { get; set; } = false;
-
-    /// Entity silindiği zaman (Soft Delete için)
-    public DateTime? DeletedAt { get; set; }
+    public DateTime? DeleteDate{ get; set; }
 }

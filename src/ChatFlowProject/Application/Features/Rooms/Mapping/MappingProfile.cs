@@ -1,7 +1,10 @@
 ﻿using Application.Features.Rooms.Commands.Create;
 using Application.Features.Rooms.Commands.Update;
 using Application.Features.Rooms.Queries.Get;
+using Application.Features.Rooms.Queries.GetList;
+using Application.Repositories;
 using AutoMapper;
+using Core.Application.Dtos;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,5 +23,7 @@ public class MappingProfile:Profile
         CreateMap<Room, GetRoomResponse>().ReverseMap();
         CreateMap<Room, UpdateRoomCommand>().ReverseMap();
         CreateMap<Room, UpdatedRoomResponse>().ReverseMap();
+
+        CreateMap<RoomWithUnreadDto, GetListRoomResponse>().ReverseMap();
     }
 }

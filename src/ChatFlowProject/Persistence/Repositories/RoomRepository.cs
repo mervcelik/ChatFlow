@@ -2,6 +2,8 @@
 using Core.Persistence.Attributes;
 using Core.Persistence.Repositories;
 using Domain.Entities;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using System.Collections;
 using System.Reflection;
@@ -30,35 +32,78 @@ public class RoomRepository:BaseRepository<Room>,IRoomRepository
 
     public async Task<List<RoomWithUnreadDto>> GetListRoomWithUnreadAsync(Guid userId)
     {
-        var result = await _roomMemberCollection.Aggregate()
-            .Match(roomMember => roomMember.UserId == userId)
-            .Lookup<RoomMember, Room, RoomLookupModel>(
-            _collection,
-            roomMember => roomMember.RoomId,
-            room => room.Id,
-            roomLookup => roomLookup.Room)
-            .Lookup<RoomLookupModel, Message, RoomLookupModel>(
-            _messageCollection,
-                roomLookup => roomLookup.Room.Id,
-                message => message.RoomId,
-                roomLookup => roomLookup.Messages)
+        var pipeline = new[]
+        {
+        // 1. Kullanıcının üye olduğu odaları bul
+        new BsonDocument("$match", new BsonDocument("userId", userId.ToString())),
 
-           .ToListAsync();
+        // 2. Room bilgisini join et
+        new BsonDocument("$lookup", new BsonDocument
+        {
+            { "from", "rooms" },
+            { "localField", "roomId" },
+            { "foreignField", "_id" },
+            { "as", "room" }
+        }),
+        new BsonDocument("$unwind", "$room"),
 
-        var list = from item in result
-                   select new RoomWithUnreadDto
-                   {
-                       RoomId = item.Room.Id,
-                       RoomName = item.Room.Name,
-                       LastReadAt = item.LastReadAt,
-                       UnreadMessageCount = item.Messages.Count(m => m.CreatedDate > (item.LastReadAt ?? DateTime.MinValue))
-                   };
-        return list.ToList();
+        // 3. Okunmamış mesajları say (lastRead'den sonrakiler)
+        new BsonDocument("$lookup", new BsonDocument
+        {
+            { "from", "messages" },
+            { "let", new BsonDocument
+                {
+                    { "roomId", "$roomId" },
+                    { "lastRead", "$lastRead" }
+                }
+            },
+            { "pipeline", new BsonArray
+                {
+                    new BsonDocument("$match", new BsonDocument("$expr", new BsonDocument("$and", new BsonArray
+                    {
+                        new BsonDocument("$eq", new BsonArray { "$roomId", "$$roomId" }),
+                        new BsonDocument("$gt", new BsonArray { "$createdAt", "$$lastRead" })
+                    })))
+                }
+            },
+            { "as", "unreadMessages" }
+        }),
+
+        // 4. Sonucu şekillendir
+        new BsonDocument("$project", new BsonDocument
+        {
+            { "roomId", 1 },
+            { "roomName", "$room.name" },
+            { "lastReadAt", "$lastRead" },
+            { "unreadMessageCount", new BsonDocument("$size", "$unreadMessages") }
+        })
+    };
+
+        var result = await _roomMemberCollection
+            .Aggregate<BsonDocument>(pipeline)
+            .ToListAsync();
+
+        return result.Select(doc => new RoomWithUnreadDto
+        {
+            RoomId = doc["roomId"].AsGuid,
+            RoomName = doc["roomName"].AsString,
+            LastReadAt = doc["lastReadAt"] != BsonNull.Value
+                ? doc["lastReadAt"].ToUniversalTime()
+                : null,
+            UnreadMessageCount = doc["unreadMessageCount"].AsInt32
+        }).ToList();
     }
 }
+[BsonIgnoreExtraElements]
 public class RoomLookupModel
 {
+    [BsonId]
+    public Guid Id { get; set; }  // RoomMember'ın kendi _id'si
+
+    public Guid UserId { get; set; }
+    public Guid RoomId { get; set; }
+    public DateTime? LastReadAt { get; set; }
+
     public Room Room { get; set; }
     public List<Message> Messages { get; set; }
-    public DateTime? LastReadAt { get; set; }
 }

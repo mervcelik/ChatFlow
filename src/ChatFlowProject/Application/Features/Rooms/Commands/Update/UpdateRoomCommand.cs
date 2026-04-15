@@ -11,7 +11,7 @@ namespace Application.Features.Rooms.Commands.Update;
 
 public class UpdateRoomCommand : IRequest<UpdatedRoomResponse>
 {
-    public Guid RoomId { get; set; }
+    public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
@@ -36,19 +36,16 @@ public class UpdateRoomCommandHandler : IRequestHandler<UpdateRoomCommand, Updat
 
     public async Task<UpdatedRoomResponse> Handle(UpdateRoomCommand request, CancellationToken cancellationToken)
     {
-        // Kullanıcının oda güncelleme izni var mı kontrol et
-        await _authorizationService.RequirePermissionAsync(request.UserId, request.RoomId, Permission.UpdateRoomInfo);
+        await _authorizationService.RequirePermissionAsync(request.UserId, request.Id, Permission.UpdateRoomInfo);
 
-        var room = await _roomRepository.GetAsync(x => x.Id == request.RoomId, false, cancellationToken);
+        var room = await _roomRepository.GetAsync(x => x.Id == request.Id, false, cancellationToken);
 
         if (room == null)
         {
-            throw new NotFoundException("Room", request.RoomId);
+            throw new NotFoundException("Room", request.Id);
         }
 
-        room.Name = request.Name;
-        room.Description = request.Description;
-        room.AvatarUrl = request.AvatarUrl;
+        room = _mapper.Map(request,room);
 
         await _roomRepository.UpdateAsync(room);
 

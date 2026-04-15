@@ -1,6 +1,7 @@
 ﻿using Core.Persistence.Attributes;
 using Core.Persistence.Entities;
 using Core.Persistence.Paging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,12 @@ public abstract class BaseRepository<T> : IRepository<T>
         _collection = database.GetCollection<T>(collectionName);
     }
 
-    /// Helper method: Soft delete filter'ı ekle (IsDeleted = false)
     protected FilterDefinition<T> ApplySoftDeleteFilter(FilterDefinition<T>? filter = null, bool includeDeleted = false)
     {
         if (includeDeleted)
             return filter ?? Builders<T>.Filter.Empty;
 
-        var softDeleteFilter = Builders<T>.Filter.Eq("IsDeleted", false);
+        var softDeleteFilter = Builders<T>.Filter.Eq("DeleteDate", BsonNull.Value);
 
         if (filter == null)
             return softDeleteFilter;
@@ -64,9 +64,11 @@ public abstract class BaseRepository<T> : IRepository<T>
 
         var totalCount = await _collection.CountDocumentsAsync(finalFilter, null, ct);
 
+        var skip = Math.Max((page - 1) * pageSize, 0);
+
         var items = await _collection
             .Find(finalFilter)
-            .Skip((page - 1) * pageSize)
+            .Skip(skip)
             .Limit(pageSize)
             .ToListAsync(ct);
 
@@ -103,8 +105,7 @@ public abstract class BaseRepository<T> : IRepository<T>
 
     public async Task SoftDeleteAsync(T entity, CancellationToken ct = default)
     {
-        entity.IsDeleted = true;
-        entity.DeletedAt = DateTime.UtcNow;
+        entity.DeleteDate = DateTime.Now;
         await UpdateAsync(entity, ct);
     }
 
