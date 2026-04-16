@@ -29,8 +29,6 @@ public class Message : Entity
     /// Dosya veya resim mesajlarında ek bilgiler.
     public MessageAttachment? Attachment { get; set; }
 
-    public bool IsDeleted { get; set; } = false;
-
     public DateTime? EditedAt { get; set; }
 }
 public class ReadReceipt
